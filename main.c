@@ -1,48 +1,91 @@
-#include <stdio.h>
-#include <fcntl.h>
-#include "pizza.h"
+#include <printf.h>
+#include "slideshow.h"
+#include "libft.h"
+#include "slide.h"
 
-int count(t_stack *res)
+void	parse(t_photo **lst, char *line, int step)
 {
-	size_t i;
+	int i;
 
-	i = 0;
-	while (res)
-	{
-		res = res->next;
+	i = 2;
+	(*lst)->orient = line[0];
+	(*lst)->used = 0;
+	(*lst)->id = step;
+	(*lst)->count_tags = ft_atoi(&line[2]);
+	while (ft_isdigit(line[i]))
 		i++;
-	}
-	return(i);
+	(*lst)->tags = ft_strsplit(&line[i], ' ');
+	(*lst)->next = (t_photo*)malloc(sizeof(t_photo));
+	*lst = (*lst)->next;
+	(*lst)->next = NULL;
 }
+
+void	free_struct(t_photo **lst)
+{
+	int     i;
+	t_photo *ptr;
+
+	while ((*lst)->next)
+	{
+		i = -1;
+		ptr = *lst;
+		while (++i < (*lst)->count_tags)
+			free((*lst)->tags[i]);
+		free((*lst)->tags);
+		*lst = (*lst)->next;
+		free(ptr);
+	}
+}
+
 
 int main()
 {
-	t_pizza pizza;
-	t_stack *stack;
-	int 	fd;
-	t_point point;
+	int		fd;
+	char	*line;
+	int 	value;
+	int		step;
+	t_photo *lst;
+	t_photo	*head;
+	int 	count;
 
-	int 	count_;
-
-	point.x = 0;
-	point.y = 0;
-
-	fd = open("file", O_RDONLY);
-	parsing(&pizza, fd);
-//	print_mas(&pizza, (const char**)pizza.mas);
-	pizza.res = NULL;
-	recursion(point, &pizza, &stack);
-	count_ = count(pizza.res);
-	if (pizza.res != NULL)
+	step = 0;
+	lst = (t_photo*)malloc(sizeof(t_photo));
+	lst->next = NULL;
+	head = lst;
+	fd = open("b_lovely_landscapes.txt", O_RDONLY);
+//	fd = open("d_pet_pictures.txt", O_RDONLY);
+//	fd = open("a_example.txt", O_RDONLY);
+	get_next_line(fd, &line);
+	value = ft_atoi(line);
+	free(line);
+	while(get_next_line(fd, &line) > 0)
 	{
-		ft_printf("total - %d\n", pizza.res->total);
-		ft_printf("%llu\n", count_);
-		while (pizza.res)
-		{
-			ft_printf("%d %d %d %d\n", pizza.res->a.y, pizza.res->a.x,
-					  pizza.res->b.y, pizza.res->b.x);
-			pizza.res = pizza.res->next;
-		}
+		parse(&lst, line, step);
+		free(line);
+		step++;
 	}
-	return 0;
+
+	t_slide *orig_h;
+	t_slide *result;
+
+	orig_h = NULL;
+	result = NULL;
+
+	get_list_slide(&orig_h, head);
+	get_result_list(&result, orig_h);
+
+	count = count_slides(result);
+	printf("%d\n", count);
+	while (result)
+	{
+		printf("%d", result->a);
+		if (result->b != -1)
+			printf(" %d", result->b);
+		printf("\n");
+		result = result->next;
+	}
+
+
+	free_struct(&lst);
+	return (0);
 }

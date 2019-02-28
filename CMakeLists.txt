@@ -5,6 +5,6 @@ set(CMAKE_C_STANDARD 99)
 add_subdirectory(./libft)
 
 
-add_executable(untitled2 main.c pizza.h parsing.c stack.c get_square_rect.c recursion.c print_mas.c)
+add_executable(untitled2 main.c stack_operation.c slide.h compare_tags.c)
 target_include_directories(untitled2 PUBLIC ./includes)
 target_link_libraries(untitled2 LIBFT)
